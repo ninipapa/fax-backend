@@ -1,0 +1,98 @@
+2026-10-08T02:21:34.872162803Z ==> Uploaded in 5.3s. Compression took 1.3s
+2026-10-08T02:21:34.875905538Z ==> Build successful 🎉
+2026-10-08T02:21:38.885271442Z ==> Deploying...
+2026-10-08T02:21:39.100984658Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-10-08T02:21:46.34824931Z ==> Running 'uvicorn main:app --host 0.0.0.0 --port $PORT'
+2026-10-08T02:21:56.744519166Z Traceback (most recent call last):
+2026-10-08T02:21:56.745794645Z   File "/opt/render/project/src/.venv/bin/uvicorn", line 7, in <module>
+2026-10-08T02:21:56.745811575Z     sys.exit(main())
+2026-10-08T02:21:56.745818285Z              ~~~~^^
+2026-10-08T02:21:56.745824245Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1631, in __call__
+2026-10-08T02:21:56.745832785Z     return self.main(*args, **kwargs)
+2026-10-08T02:21:56.745838216Z            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+2026-10-08T02:21:56.745843746Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1552, in main
+2026-10-08T02:21:56.745849616Z     rv = self.invoke(ctx)
+2026-10-08T02:21:56.745858966Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1415, in invoke
+2026-10-08T02:21:56.745865006Z     return ctx.invoke(self.callback, **ctx.params)
+2026-10-08T02:21:56.745870316Z            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:21:56.745874537Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 910, in invoke
+2026-10-08T02:21:56.745878177Z     return callback(*args, **kwargs)
+2026-10-08T02:21:56.745881757Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/main.py", line 448, in main
+2026-10-08T02:21:56.745885267Z     run(
+2026-10-08T02:21:56.745888777Z     ~~~^
+2026-10-08T02:21:56.745910717Z         app,
+2026-10-08T02:21:56.745917347Z         ^^^^
+2026-10-08T02:21:56.745922318Z     ...<49 lines>...
+2026-10-08T02:21:56.745927888Z         reset_contextvars=reset_contextvars,
+2026-10-08T02:21:56.745932668Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:21:56.745938008Z     )
+2026-10-08T02:21:56.745943218Z     ^
+2026-10-08T02:21:56.745948148Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/main.py", line 620, in run
+2026-10-08T02:21:56.745953508Z     config.load_app()
+2026-10-08T02:21:56.745958748Z     ~~~~~~~~~~~~~~~^^
+2026-10-08T02:21:56.745963979Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 434, in load_app
+2026-10-08T02:21:56.745969329Z     return import_from_string(self.app)
+2026-10-08T02:21:56.745975109Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 22, in import_from_string
+2026-10-08T02:21:56.745980009Z     raise exc from None
+2026-10-08T02:21:56.745987709Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
+2026-10-08T02:21:56.745992369Z     module = importlib.import_module(module_str)
+2026-10-08T02:21:56.745996039Z   File "/opt/render/project/python/Python-3.14.3/lib/python3.14/importlib/__init__.py", line 88, in import_module
+2026-10-08T02:21:56.745999619Z     return _bootstrap._gcd_import(name[level:], package, level)
+2026-10-08T02:21:56.746003109Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:21:56.74600678Z   File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+2026-10-08T02:21:56.7460103Z   File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+2026-10-08T02:21:56.74601561Z   File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+2026-10-08T02:21:56.74603046Z   File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+2026-10-08T02:21:56.74603421Z   File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+2026-10-08T02:21:56.74603761Z   File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+2026-10-08T02:21:56.746055401Z   File "/opt/render/project/src/main.py", line 8, in <module>
+2026-10-08T02:21:56.746058531Z     from docx2pdf import convert
+2026-10-08T02:21:56.746060951Z ModuleNotFoundError: No module named 'docx2pdf'
+2026-10-08T02:21:58.984862301Z ==> Exited with status 1
+2026-10-08T02:21:58.989091802Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-10-08T02:22:02.791495895Z ==> Running 'uvicorn main:app --host 0.0.0.0 --port $PORT'
+2026-10-08T02:22:12.984508241Z Traceback (most recent call last):
+2026-10-08T02:22:12.986376663Z   File "/opt/render/project/src/.venv/bin/uvicorn", line 7, in <module>
+2026-10-08T02:22:12.986392703Z     sys.exit(main())
+2026-10-08T02:22:12.986396863Z              ~~~~^^
+2026-10-08T02:22:12.986400933Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1631, in __call__
+2026-10-08T02:22:12.986406344Z     return self.main(*args, **kwargs)
+2026-10-08T02:22:12.986410004Z            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+2026-10-08T02:22:12.986413724Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1552, in main
+2026-10-08T02:22:12.986417584Z     rv = self.invoke(ctx)
+2026-10-08T02:22:12.986421334Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 1415, in invoke
+2026-10-08T02:22:12.986425714Z     return ctx.invoke(self.callback, **ctx.params)
+2026-10-08T02:22:12.986429354Z            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:22:12.986433064Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/click/core.py", line 910, in invoke
+2026-10-08T02:22:12.986436844Z     return callback(*args, **kwargs)
+2026-10-08T02:22:12.986440534Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/main.py", line 448, in main
+2026-10-08T02:22:12.986444174Z     run(
+2026-10-08T02:22:12.986447805Z     ~~~^
+2026-10-08T02:22:12.986451455Z         app,
+2026-10-08T02:22:12.986455215Z         ^^^^
+2026-10-08T02:22:12.986458855Z     ...<49 lines>...
+2026-10-08T02:22:12.986462535Z         reset_contextvars=reset_contextvars,
+2026-10-08T02:22:12.986466235Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:22:12.986469775Z     )
+2026-10-08T02:22:12.986473665Z     ^
+2026-10-08T02:22:12.986477425Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/main.py", line 620, in run
+2026-10-08T02:22:12.986481175Z     config.load_app()
+2026-10-08T02:22:12.986484925Z     ~~~~~~~~~~~~~~~^^
+2026-10-08T02:22:12.986488506Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 434, in load_app
+2026-10-08T02:22:12.986492166Z     return import_from_string(self.app)
+2026-10-08T02:22:12.986496406Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 22, in import_from_string
+2026-10-08T02:22:12.986499976Z     raise exc from None
+2026-10-08T02:22:12.986503666Z   File "/opt/render/project/src/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
+2026-10-08T02:22:12.986507246Z     module = importlib.import_module(module_str)
+2026-10-08T02:22:12.986510846Z   File "/opt/render/project/python/Python-3.14.3/lib/python3.14/importlib/__init__.py", line 88, in import_module
+2026-10-08T02:22:12.986514606Z     return _bootstrap._gcd_import(name[level:], package, level)
+2026-10-08T02:22:12.986518196Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T02:22:12.986522006Z   File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+2026-10-08T02:22:12.986525746Z   File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+2026-10-08T02:22:12.986552387Z   File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+2026-10-08T02:22:12.986556477Z   File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+2026-10-08T02:22:12.986562227Z   File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+2026-10-08T02:22:12.986568397Z   File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+2026-10-08T02:22:12.986593358Z   File "/opt/render/project/src/main.py", line 8, in <module>
+2026-10-08T02:22:12.986606258Z     from docx2pdf import convert
+2026-10-08T02:22:12.986609028Z ModuleNotFoundError: No module named 'docx2pdf'
