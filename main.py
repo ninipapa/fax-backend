@@ -1,5 +1,5 @@
 import os
-import shutil
+import uuid
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
@@ -8,7 +8,6 @@ import requests
 
 app = FastAPI(title="FAX Send System - Real Transmission Version")
 
-# フォルダ設定
 UPLOAD_DIR = "uploaded_files"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/files", StaticFiles(directory=UPLOAD_DIR), name="files")
@@ -49,7 +48,6 @@ def init_db():
 
 init_db()
 
-# 環境変数から Telnyx 情報を取得
 TELNYX_API_KEY = os.getenv("TELNYX_API_KEY")
 TELNYX_FAX_NUMBER = os.getenv("TELNYX_FAX_NUMBER")
 TELNYX_CONNECTION_ID = os.getenv("TELNYX_CONNECTION_ID")
@@ -64,25 +62,27 @@ async def send_fax_file(
     to_number: str = Form(...),
     file: UploadFile = File(...)
 ):
-    filename = file.filename
-    ext = os.path.splitext(filename)[1].lower()
+    original_filename = file.filename
+    ext = os.path.splitext(original_filename)[1].lower()
     
     if ext not in [".pdf", ".jpg", ".jpeg", ".png"]:
         raise HTTPException(status_code=400, detail="対応していないファイル形式です。.pdf, .jpg, .png のいずれかを指定してください。")
 
-    save_path = os.path.join(UPLOAD_DIR, filename)
+    # URL安全な英数字のユニークファイル名でサーバーに保存
+    safe_filename = f"{uuid.uuid4().hex}{ext}"
+    save_path = os.path.join(UPLOAD_DIR, safe_filename)
+    
     with open(save_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        content = await file.read()
+        buffer.write(content)
 
-    # Telnyx がダウンロードできる公開 URL を自動生成
-    # 例: https://fax-backend-app.onrender.com/files/sample.pdf
+    # Telnyx 参照用の公開 URL (例: https://fax-backend-app.onrender.com/files/a1b2c3d4.pdf)
     base_url = str(request.base_url).rstrip("/")
-    media_url = f"{base_url}/files/{filename}"
+    media_url = f"{base_url}/files/{safe_filename}"
 
     telnyx_fax_id = None
     status = "simulated"
 
-    # Telnyx のキーが設定されている場合はリアル送信を実施
     if TELNYX_API_KEY and TELNYX_FAX_NUMBER and TELNYX_CONNECTION_ID:
         headers = {
             "Authorization": f"Bearer {TELNYX_API_KEY}",
@@ -92,11 +92,12 @@ async def send_fax_file(
             "connection_id": TELNYX_CONNECTION_ID,
             "to": to_number,
             "from": TELNYX_FAX_NUMBER,
-            "media_url": media_url
+            "media_url": media_url,
+            "webhook_url": f"{base_url}/api/v1/telnyx-webhook"
         }
         res = requests.post("https://api.telnyx.com/v2/faxes", json=data, headers=headers)
         api_response = res.json()
-        print(f"Telnyx Response: {api_response}") # ログ出力
+        print(f"Telnyx Response: {api_response}")
         
         if res.status_code in [200, 201]:
             telnyx_fax_id = api_response.get("data", {}).get("id")
@@ -104,7 +105,7 @@ async def send_fax_file(
         else:
             status = "failed"
 
-    # PostgreSQL 保存処理
+    # PostgreSQL には「元のファイル名（original_filename）」を記録
     conn = get_db_connection()
     if conn:
         try:
@@ -113,14 +114,46 @@ async def send_fax_file(
                 INSERT INTO fax_logs (to_number, original_filename, pdf_path, status, telnyx_fax_id)
                 VALUES (%s, %s, %s, %s, %s)
             """
-            cursor.execute(insert_query, (to_number, filename, save_path, status, telnyx_fax_id))
+            cursor.execute(insert_query, (to_number, original_filename, save_path, status, telnyx_fax_id))
             conn.commit()
             cursor.close()
             conn.close()
         except Exception as e:
             print(f"Failed to log to DB: {e}")
 
-    return {"status": "success", "message": "送信処理完了", "filename": filename, "fax_status": status}
+    return {"status": "success", "message": "送信処理完了", "filename": original_filename, "fax_status": status}
+
+# Telnyx からのステータス更新通知（Webhook）を受領するエンドポイント
+@app.post("/api/v1/telnyx-webhook")
+async def telnyx_webhook(request: Request):
+    try:
+        body = await request.json()
+        data = body.get("data", {})
+        event_type = data.get("event_type")
+        payload = data.get("payload", {})
+        fax_id = payload.get("id")
+
+        if fax_id and event_type:
+            new_status = "unknown"
+            if event_type == "fax.delivered":
+                new_status = "delivered"
+            elif event_type == "fax.failed":
+                new_status = "failed"
+            elif event_type == "fax.sending":
+                new_status = "sending"
+
+            if new_status != "unknown":
+                conn = get_db_connection()
+                if conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE fax_logs SET status = %s WHERE telnyx_fax_id = %s", (new_status, fax_id))
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    print(f"Updated Fax {fax_id} status to {new_status}")
+    except Exception as e:
+        print(f"Webhook processing error: {e}")
+    return {"status": "ok"}
 
 @app.get("/api/v1/fax-history")
 def get_fax_history():
