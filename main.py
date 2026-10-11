@@ -123,26 +123,39 @@ async def send_fax_file(
 
     return {"status": "success", "message": "送信処理完了", "filename": original_filename, "fax_status": status}
 
+import sys # 冒頭に sys が無ければインポートを確認してください
+
 # Telnyx からのステータス更新通知（Webhook）を受領するエンドポイント
 @app.post("/api/v1/telnyx-webhook")
 async def telnyx_webhook(request: Request):
     try:
         body = await request.json()
         data = body.get("data", {})
-        event_type = data.get("event_type")
+        event_type = data.get("event_type", "unknown")
         payload = data.get("payload", {})
         fax_id = payload.get("id")
+        failure_reason = payload.get("failure_reason")
 
-        if fax_id and event_type:
-            new_status = "unknown"
+        # どんなイベントであってもログに強制出力（flush=True）
+        print(f"\n----------------------------------------", flush=True)
+        print(f"★ Telnyx Event Received: {event_type}", flush=True)
+        print(f"★ Fax ID: {fax_id}", flush=True)
+        if failure_reason:
+            print(f"⚠️ FAILURE REASON: {failure_reason}", flush=True)
+        print(f"----------------------------------------\n", flush=True)
+
+        # DB ステータス更新
+        if fax_id:
+            new_status = None
             if event_type == "fax.delivered":
                 new_status = "delivered"
-            elif event_type == "fax.failed":
-                new_status = "failed"
-            elif event_type == "fax.sending":
+            elif event_type in ["fax.failed", "fax.media.processed"]:
+                if failure_reason or event_type == "fax.failed":
+                    new_status = "failed"
+            elif event_type in ["fax.queued", "fax.sending"]:
                 new_status = "sending"
 
-            if new_status != "unknown":
+            if new_status:
                 conn = get_db_connection()
                 if conn:
                     cursor = conn.cursor()
@@ -150,9 +163,9 @@ async def telnyx_webhook(request: Request):
                     conn.commit()
                     cursor.close()
                     conn.close()
-                    print(f"Updated Fax {fax_id} status to {new_status}")
+                    print(f"DB Status updated to: {new_status}", flush=True)
     except Exception as e:
-        print(f"Webhook processing error: {e}")
+        print(f"Webhook error: {e}", flush=True)
     return {"status": "ok"}
 
 @app.get("/api/v1/fax-history")
